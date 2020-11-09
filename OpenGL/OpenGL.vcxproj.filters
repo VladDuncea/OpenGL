@@ -21,15 +21,39 @@
     <None Include="02_01_Shader.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="04_01_Shader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="04_01_Shader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="04_03_Shader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="04_03_Shader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Tema_2_Duncea_Vlad_1.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="loadShaders.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="sapt3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main2.cpp">
+    <ClCompile Include="sapt4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="04_04_transformari_keyboard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="04_03_transformari_glm_vers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tema_2_Duncea_Vlad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
