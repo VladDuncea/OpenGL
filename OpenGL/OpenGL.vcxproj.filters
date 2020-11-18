@@ -56,6 +56,12 @@
     <ClCompile Include="Tema_2_Duncea_Vlad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="06_01_animatie.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tema_1_Duncea_VladAlexandru.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="loadShaders.h">

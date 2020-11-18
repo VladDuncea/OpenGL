@@ -162,9 +162,11 @@
   <ItemGroup>
     <ClCompile Include="04_03_transformari_glm_vers.cpp" />
     <ClCompile Include="04_04_transformari_keyboard.cpp" />
+    <ClCompile Include="06_01_animatie.cpp" />
     <ClCompile Include="loadShaders.cpp" />
     <ClCompile Include="sapt3.cpp" />
     <ClCompile Include="sapt4.cpp" />
+    <ClCompile Include="Tema_1_Duncea_VladAlexandru.cpp" />
     <ClCompile Include="Tema_2_Duncea_Vlad.cpp" />
   </ItemGroup>
   <ItemGroup>
