@@ -36,6 +36,9 @@
     <None Include="Tema_2_Duncea_Vlad_1.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Tema_3_Duncea_Vlad.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="loadShaders.cpp">
@@ -60,6 +63,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tema_1_Duncea_VladAlexandru.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tema_3_Duncea_Vlad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

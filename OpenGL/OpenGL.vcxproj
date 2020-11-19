@@ -158,6 +158,7 @@
     <None Include="04_03_Shader.frag" />
     <None Include="04_03_Shader.vert" />
     <None Include="Tema_2_Duncea_Vlad_1.vert" />
+    <None Include="Tema_3_Duncea_Vlad.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="04_03_transformari_glm_vers.cpp" />
@@ -168,6 +169,7 @@
     <ClCompile Include="sapt4.cpp" />
     <ClCompile Include="Tema_1_Duncea_VladAlexandru.cpp" />
     <ClCompile Include="Tema_2_Duncea_Vlad.cpp" />
+    <ClCompile Include="Tema_3_Duncea_Vlad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="loadShaders.h" />
