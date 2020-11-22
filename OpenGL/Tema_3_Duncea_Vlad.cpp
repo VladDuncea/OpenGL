@@ -29,10 +29,15 @@ ProgramId,
 defaultTranslateLocation,
 defaultResizeLocation,
 matrScaleLocation,
+matrRotateLocation,
 modifyLocation,
+matrRotateFinalLocation,
+matrRotTransl1Location,
+matrRotTransl2Location,
+rotateFinalLocation,
 matrTranslLocation;
 
-int modify;
+int modify, rotateFinal;
 float PI = 3.141592;
 
 //Time keeping
@@ -48,6 +53,7 @@ const int nrLines = h / lineHeight;
 float linePozVect[h / lineHeight];
 
 //Masina 1
+int offsetXMasina1 = 150;
 float timpMasina1 = 0,duratieMasina1 = 0.1, frecventaMasina1 = 2;
 float animatieMasina1 = 0;
 
@@ -59,23 +65,72 @@ float offsetXMasina2 = offsetXMasina2Init, offsetYMasina2 = offsetYMasina2Init;
 //Animatie
 int etapaCurenta = 1;
 //ET1
-float stopEtapa1 = -350;
-float speedEtapa1 = 100;
+float stopEtapa1 = -350,initialSpeedEtapa1=400, speedEtapa1 = initialSpeedEtapa1;
+float accelYEtapa1 = -90;
 //ET2
 int nrFlash = 0, maxFlash = 2;
-float timpFlash = 0,duratieFlashFaruri = 0.5, frecventaFlashFaruri = 0.5;
+float timpFlash = 0,duratieFlashFaruri = 0.2, frecventaFlashFaruri = 0.2;
 bool flash = false;
 //ET3
 int countEtapa3 = 0, duratieEtapa3 = 2, maxEtapa3 = 1;
 float timpEtapa3 = 0;
 //ET4
-float stopXEtapa4 = -150, stopYEtapa4 = 200;
-float speedXEtapa4 = 100, speedYEtapa4 = 0, maxSpeedYEtapa4 = 200, accelYEtapa4 = 20;
+float stopXEtapa4 = -150, stopYEtapa4 = 100;
+float speedXEtapa4 = 100, speedYEtapa4 = 0, maxSpeedYEtapa4 = 200, accelYEtapa4 = 50;
 bool stanga = true;
 
 
-glm::mat4 defaultResize, defaultTranslate, matrTransl, matrScale;
+glm::mat4 defaultResize, defaultTranslate, matrTransl, matrScale, matrRot, matrRotFinal;
+glm::mat4 matrRotTransl1,matrRotTransl2;
 glm::vec3 pctTrans, pctTransD;
+
+#pragma region Semnalizator
+
+class Semnalizator
+{
+private:
+	static bool _semnal, _semnalAprins;
+	static float _timpSemnal;
+	static const float _duratieSemnal, _frecventaSemnal;
+public:
+
+	static void advance(float dt)
+	{
+		if (!_semnal)
+			return;
+
+		_timpSemnal += dt;
+
+		if (_semnalAprins && _timpSemnal > _duratieSemnal)
+		{
+			_semnalAprins = false;
+			_timpSemnal = 0;
+		}
+		else if (!_semnalAprins && _timpSemnal > _frecventaSemnal)
+		{
+			_semnalAprins = true;
+			_timpSemnal = 0;
+		}
+	}
+
+	static void semnal(bool val)
+	{
+		_semnal = val;
+	}
+
+	static bool semnalizeaza()
+	{
+		return _semnal && _semnalAprins;
+	}
+
+};
+bool Semnalizator::_semnal = false;
+bool Semnalizator::_semnalAprins = true;
+float Semnalizator::_timpSemnal = 0;
+const float Semnalizator::_duratieSemnal = 0.6f;
+const float Semnalizator::_frecventaSemnal = 0.3f;
+
+#pragma endregion
 
 float centru_greutate(vector<float> points)
 {
@@ -142,13 +197,15 @@ void AdvanceLoop(void)
 	//Miscare initiala
 	if (etapaCurenta == 1)
 	{
-		if (offsetYMasina2 < stopEtapa1)
+		if (speedEtapa1 > 0)
 		{
 			offsetYMasina2 += speedEtapa1 * dt;
+			speedEtapa1 += accelYEtapa1 * dt;
 		}
 		else
 		{
 			etapaCurenta = 2;
+			speedEtapa1 = initialSpeedEtapa1;
 		}
 	}
 	//Flashuri
@@ -190,6 +247,7 @@ void AdvanceLoop(void)
 			{
 				etapaCurenta = 4;
 				countEtapa3 = 0;
+				Semnalizator::semnal(true);
 			}
 			else
 			{
@@ -215,13 +273,24 @@ void AdvanceLoop(void)
 			{
 				offsetXMasina2 = stopXEtapa4;
 				stanga = false;
+				Semnalizator::semnal(false);
 			}
 		}
 		else
 		{
 			if (offsetYMasina2 > stopYEtapa4)
 			{
-				offsetXMasina2 += speedXEtapa4 * dt;
+				Semnalizator::semnal(true);
+				if (offsetXMasina2 < offsetXMasina2Init)
+				{
+					offsetXMasina2 += speedXEtapa4 * dt;
+					
+				}
+				else
+				{
+					Semnalizator::semnal(false);
+				}
+					
 			}
 		}
 
@@ -229,8 +298,12 @@ void AdvanceLoop(void)
 		{
 			etapaCurenta = 5;
 			stanga = true;
-			speedYEtapa4 = 0; 
+			speedYEtapa4 = 0;
+			Semnalizator::semnal(false);
 		}
+
+		//Procesare semnalizator
+		Semnalizator::advance(dt);
 	}
 	else if (etapaCurenta == 5)
 	{
@@ -284,61 +357,121 @@ void CreateVBO(void)
 		(w - 10) / 2,	(h + 10) / 2,	0.0f,	1.0f,
 
 		//Trunchi lumina
-		(w-10)/2,	(h-10)/2,	0.0f,	1.0f,
-		(w+10)/2,	(h-10)/2,	0.0f,	1.0f,
-		(w+100)/2,	(h+10)/2,	0.0f,	1.0f,
-		(w-100)/2,	(h+10)/2,	0.0f,	1.0f,
+		(w-10)/2,	(h)/2,	1.0f,	1.0f,
+		(w+10)/2,	(h)/2,	1.0f,	1.0f,
+		(w+150)/2,	(h+20)/2,	1.0f,	1.0f,
+		(w-150)/2,	(h+20)/2,	1.0f,	1.0f,
 
 		//Trunchi flash lumina
-		(w - 10) / 2,	(h - 10) / 2,	0.0f,	1.0f,
-		(w + 10) / 2,	(h - 10) / 2,	0.0f,	1.0f,
-		(w + 180) / 2,	(h + 10) / 2,	0.0f,	1.0f,
-		(w - 180) / 2,	(h + 10) / 2,	0.0f,	1.0f,
+		(w - 10) / 2,	(h) / 2,	1.0f,	1.0f,
+		(w + 10) / 2,	(h) / 2,	1.0f,	1.0f,
+		(w + 300) / 2,	(h + 20) / 2,	1.0f,	1.0f,
+		(w - 300) / 2,	(h + 20) / 2,	1.0f,	1.0f,
+
+		//Semnal
+		(w - 10) / 2,	(h - 20) / 2,	0.0f,	1.0f,
+		(w + 10) / 2,	(h - 20) / 2,	0.0f,	1.0f,
+		(w + 10) / 2,	(h + 20) / 2,	0.0f,	1.0f,
+		(w - 10) / 2,	(h + 20) / 2,	0.0f,	1.0f,
+
+		//Stop
+		(w - 20) / 2,	(h - 10) / 2,	0.0f,	1.0f,
+		(w + 20) / 2,	(h - 10) / 2,	0.0f,	1.0f,
+		(w + 20) / 2,	(h + 10) / 2,	0.0f,	1.0f,
+		(w - 20) / 2,	(h + 10) / 2,	0.0f,	1.0f,
+
+		//Trunchi lumina stop
+		(w - 2000) / 2,	(h - 10) / 2,	0.0f,	1.0f,
+		(w + 2000) / 2,	(h - 10) / 2,	0.0f,	1.0f,
+		(w + 20) / 2,	(h) / 2,	0.0f,	1.0f,
+		(w - 20) / 2,	(h) / 2,	0.0f,	1.0f,
+
+		//Trunchi lumina frana
+		(w - 10000) / 2,	(h - 10) / 2,	0.0f,	1.0f,
+		(w + 10000) / 2,	(h - 10) / 2,	0.0f,	1.0f,
+		(w + 20) / 2,	(h) / 2,	0.0f,	1.0f,
+		(w - 20) / 2,	(h) / 2,	0.0f,	1.0f,
+
+		//Trunchi lumina semnal
+		(w - 20) / 2,	(h - 2000) / 2,	0.0f,	1.0f,
+		(w) / 2,		(h - 10) / 2,	0.0f,	1.0f,
+		(w) / 2,		(h + 10) / 2,	0.0f,	1.0f,
+		(w - 20) / 2,	(h + 2000) / 2,	0.0f,	1.0f,
 	};
 
 	// culorile varfurilor din colturi
 	GLfloat Colors[] = {
 		//Culori drum
-		0.23f, 0.24f, 0.27f, 1.0f,
-		0.23f, 0.24f, 0.27f, 1.0f,
-		0.43f, 0.44f, 0.47f, 1.0f,
-		0.43f, 0.44f, 0.47f, 1.0f,
+		0.2f, 0.2f, 0.2f, 1.0f,
+		0.2f, 0.2f, 0.2f, 1.0f,
+		0.2f, 0.2f, 0.2f, 1.0f,
+		0.2f, 0.2f, 0.2f, 1.0f,
 
 		//Culori linie continua (totul alb)
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
+		0.8f, 0.8f, 0.8f, 1.0f,
+		0.8f, 0.8f, 0.8f, 1.0f,
+		0.8f, 0.8f, 0.8f, 1.0f,
+		0.8f, 0.8f, 0.8f, 1.0f,
 
 		//Culori linie punctata (totul alb)
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
+		0.8f, 0.8f, 0.8f, 1.0f,
+		0.8f, 0.8f, 0.8f, 1.0f,
+		0.8f, 0.8f, 0.8f, 1.0f,
+		0.8f, 0.8f, 0.8f, 1.0f,
 
 		//Culoare masina 1
-		0.0f, 0.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.8f, 1.0f,
+		0.0f, 0.0f, 0.8f, 1.0f,
+		0.0f, 0.0f, 0.8f, 1.0f,
+		0.0f, 0.0f, 0.8f, 1.0f,
 
 		//Culoare masina 2
-		1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f,
+		0.8f, 0.7f, 0.0f, 1.0f,
+		0.8f, 0.7f, 0.0f, 1.0f,
+		0.8f, 0.7f, 0.0f, 1.0f,
+		0.8f, 0.7f, 0.0f, 1.0f,
 
 		//Culoare lumina
-		1.0f, 1.0f, 1.0f, 0.4f,
-		1.0f, 1.0f, 1.0f, 0.4f,
+		1.0f, 1.0f, 1.0f, 0.1f,
+		1.0f, 1.0f, 1.0f, 0.1f,
 		1.0f, 1.0f, 1.0f, 0.0f,
 		1.0f, 1.0f, 1.0f, 0.0f,
 
 		//Culoare flash lumina
-		1.0f, 1.0f, 1.0f, 0.6f,
-		1.0f, 1.0f, 1.0f, 0.6f,
+		1.0f, 1.0f, 1.0f, 0.3f,
+		1.0f, 1.0f, 1.0f, 0.3f,
 		1.0f, 1.0f, 1.0f, 0.0f,
 		1.0f, 1.0f, 1.0f, 0.0f,
+
+		//Culoare semnal
+		1.0f, 0.7f, 0.0f, 1.0f,
+		1.0f, 0.7f, 0.0f, 1.0f,
+		1.0f, 0.7f, 0.0f, 1.0f,
+		1.0f, 0.7f, 0.0f, 1.0f,
+
+		//Culoare stop
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+
+		//Culoare lumina stop
+		1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f, 0.03f,
+		1.0f, 0.0f, 0.0f, 0.03f,
+
+		//Culoare lumina frana
+		1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f, 0.1f,
+		1.0f, 0.0f, 0.0f, 0.1f,
+
+		//Culoare lumina semnalizator
+		1.0f, 0.7f, 0.0f, 0.0f,
+		1.0f, 0.7f, 0.0f, 0.05f,
+		1.0f, 0.7f, 0.0f, 0.05f,
+		1.0f, 0.7f, 0.0f, 0.0f,
 	};
 
 
@@ -408,15 +541,6 @@ void Initialize(void)
 	// matricea pentru scalare la patratul standard
 	defaultResize = glm::scale(glm::mat4(1.0f), glm::vec3(1.f / (width/2), 1.f / (height/2), 1.0));
 
-	// matricea pentru rotatie (cu  90 grade)
-	//matrRot = glm::rotate(glm::mat4(1.0f), PI / 2.0f, glm::vec3(0.0, 0.0, 1.0));
-
-	//Matrice scalare D
-	//Scalare *2 pe Ox, *0.5 pe Oy
-	//matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(2.0, 0.5, 1.0));
-
-	//Avand un fundal complet colorat nu are mare importanta aceasta linie
-	//glClearColor(1.0f, 1.0f, 1.0f, 0.0f); // culoarea de fond a ecranului
 
 	//Compilare shader
 	DefaultShader();
@@ -427,6 +551,13 @@ void Initialize(void)
 	defaultResizeLocation = glGetUniformLocation(ProgramId, "defaultResize");
 	matrTranslLocation = glGetUniformLocation(ProgramId, "matrTransl");
 	matrScaleLocation = glGetUniformLocation(ProgramId, "matrScale");
+	matrRotateLocation = glGetUniformLocation(ProgramId, "matrRot");
+
+	//Final rotations
+	matrRotateFinalLocation = glGetUniformLocation(ProgramId, "matrRotFinal");
+	matrRotTransl1Location = glGetUniformLocation(ProgramId, "matrRotTransl1");
+	matrRotTransl2Location = glGetUniformLocation(ProgramId, "matrRotTransl2");
+	rotateFinalLocation = glGetUniformLocation(ProgramId, "rotateFinal");
 	
 
 	//Init middle lines
@@ -437,16 +568,267 @@ void Initialize(void)
 
 	//Initial time
 	old_t = glutGet(GLUT_ELAPSED_TIME);
+
+	CreateVBO();
+}
+
+//Functii desenare
+void drawCar1(void)
+{
+	modify = 2;
+	glUniform1i(modifyLocation, modify);
+
+	//Centru
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1, 0, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(10 - animatieMasina1, 10 - animatieMasina1, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 12, 4);
+
+	//Bot
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1, 70, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8 - animatieMasina1, 12 - animatieMasina1, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 12, 4);
+
+	//Spate
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1, -70, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	glDrawArrays(GL_POLYGON, 12, 4);
+
+	//Stop
+	//stop dreapta
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1 +30, -125, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(1, 1, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 32, 4);
+
+	//stop stanga
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1 -30, -125, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	glDrawArrays(GL_POLYGON, 32, 4);
+}
+
+void drawCar1Lights(void)
+{
+	//Desenare lumina masina 1
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1, 130, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8 - animatieMasina1, 60, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 20, 4);
+
+	//lumina stop dreapta
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1 + 30, -130, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(1, 200, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 36, 4);
+
+	//lumina stop dreapta
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1 - 30, -130, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	glDrawArrays(GL_POLYGON, 36, 4);
+}
+
+void drawCar2(void)
+{
+	//Desenare masina 2 ------------------------
+	float pozYMasina2 = -350;
+
+	//Actualizare matrice rotatie finala
+	matrRotTransl1 = glm::translate(glm::mat4(1.0f), glm::vec3(-offsetXMasina2, -offsetYMasina2, 0.0));
+	glUniformMatrix4fv(matrRotTransl1Location, 1, GL_FALSE, &matrRotTransl1[0][0]);
+	matrRotTransl2 = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, offsetYMasina2, 0.0));
+	glUniformMatrix4fv(matrRotTransl2Location, 1, GL_FALSE, &matrRotTransl2[0][0]);
+
+	// matricea pentru rotatie (cu  180 grade)
+	float unghi = 0.2 * (1 - abs(offsetXMasina2 / offsetXMasina2Init));
+	if (!stanga)
+		unghi *= -1;
+	matrRotFinal = glm::rotate(glm::mat4(1.0f), unghi, glm::vec3(0.0, 0.0, 1.0));
+	glUniformMatrix4fv(matrRotateFinalLocation, 1, GL_FALSE, &matrRotFinal[0][0]);
+
+	rotateFinal = 1;
+	glUniform1i(rotateFinalLocation, rotateFinal);
+
+	modify = 2;
+	glUniform1i(modifyLocation, modify);
+
+	//Centru
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, offsetYMasina2, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(10, 10, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 16, 4);
+
+	//Bot
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, 70 + offsetYMasina2, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8, 12, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 16, 4);
+
+	//Spate
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, -70 + offsetYMasina2, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8, 12, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 16, 4);
+
+	//Semnal
+	if (Semnalizator::semnalizeaza())
+	{
+		if (stanga)
+		{
+			//semnal fata
+			matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 - 35, 120 + offsetYMasina2, 0.0));
+			glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+			matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(1, 1, 1.0));
+			glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+			glDrawArrays(GL_POLYGON, 28, 4);
+
+			//semnal spate
+			matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 - 35, -120 + offsetYMasina2, 0.0));
+			glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+			glDrawArrays(GL_POLYGON, 28, 4);
+		}
+		else
+		{
+			//semnal fata
+			matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 + 35, 120 + offsetYMasina2, 0.0));
+			glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+			matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(1, 1, 1.0));
+			glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+			glDrawArrays(GL_POLYGON, 28, 4);
+
+			//semnal spate
+			matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 + 35, -120 + offsetYMasina2, 0.0));
+			glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+			glDrawArrays(GL_POLYGON, 28, 4);
+		}
+	}
+
+	//Stop masina
+	//stop dreapta
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 + 30, offsetYMasina2 - 125, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(1, 1, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 32, 4);
+
+	//stop stanga
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 - 30, offsetYMasina2 - 125, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	glDrawArrays(GL_POLYGON, 32, 4);
+
+	rotateFinal = 0;
+	glUniform1i(rotateFinalLocation, rotateFinal);
+}
+
+void drawCar2Lights(void)
+{
+	rotateFinal = 1;
+	glUniform1i(rotateFinalLocation, rotateFinal);
+
+	if (!flash)
+	{
+		//Desenare lumina masina 2
+		matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, 130 + offsetYMasina2, 0.0));
+		glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+		matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8, 60, 1.0));
+		glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+		glDrawArrays(GL_POLYGON, 20, 4);
+	}
+	else
+	{
+		//Desenare flash lumina masina 2
+		matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, 130 + offsetYMasina2, 0.0));
+		glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+		matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8, 100, 1.0));
+		glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+		glDrawArrays(GL_POLYGON, 24, 4);
+	}
+
+
+	//Semnal
+	if (Semnalizator::semnalizeaza())
+	{
+		if (stanga)
+		{
+			//Desenare semnal sus
+			matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 - 30, 125 + offsetYMasina2, 0.0));
+			glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+			matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(60, 1, 1.0));
+			glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+			glDrawArrays(GL_POLYGON, 44, 4);
+
+			//Desenare semnal sus
+			matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 - 30, -125 + offsetYMasina2, 0.0));
+			glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+			glDrawArrays(GL_POLYGON, 44, 4);
+		}
+		else
+		{
+			modify = 3;
+			glUniform1i(modifyLocation, modify);
+
+			// matricea pentru rotatie (cu  180 grade)
+			matrRot = glm::rotate(glm::mat4(1.0f), PI, glm::vec3(0.0, 0.0, 1.0));
+			glUniformMatrix4fv(matrRotateLocation, 1, GL_FALSE, &matrRot[0][0]);
+
+			//Desenare semnal sus
+			matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 + 30, 125 + offsetYMasina2, 0.0));
+			glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+			matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(60, 1, 1.0));
+			glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+			glDrawArrays(GL_POLYGON, 44, 4);
+
+			//Desenare semnal sus
+			matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 + 30, -125 + offsetYMasina2, 0.0));
+			glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+			glDrawArrays(GL_POLYGON, 44, 4);
+
+			modify = 2;
+			glUniform1i(modifyLocation, modify);
+		}
+	}
+
+
+	int pozStop = 36;
+	if (etapaCurenta == 1)
+		pozStop += 4;
+
+	//lumina stop dreapta
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 + 30, offsetYMasina2 - 130, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(1, 200, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, pozStop, 4);
+
+	//lumina stop dreapta
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 - 30, offsetYMasina2 - 130, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	glDrawArrays(GL_POLYGON, pozStop, 4);
+
+	rotateFinal = 0;
+	glUniform1i(rotateFinalLocation, rotateFinal);
 }
 
 void RenderFunction(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	CreateVBO();
+	
 
 	//Initializare modify - pt 0 nu face decat sa aduca la [-1, 1],
 	modify = 0;
 	glUniform1i(modifyLocation, modify);
+
+	//Nu aplica o rotatie la final
+	rotateFinal = 0;
+	glUniform1i(rotateFinalLocation, rotateFinal);
 
 	// matricea de mutare default
 	glUniformMatrix4fv(defaultTranslateLocation, 1, GL_FALSE, &defaultTranslate[0][0]);
@@ -484,83 +866,15 @@ void RenderFunction(void)
 	glDrawArrays(GL_POLYGON, 4, 4);
 
 
-	//Desenare masina 1 ------------------------
-	int offsetMasina1 = 150;
+	//Desenare masini
+	drawCar1();
+	drawCar2();
 
-	modify = 2;
-	glUniform1i(modifyLocation, modify);
+	//Desenare lumini masini
+	drawCar1Lights();
+	drawCar2Lights();
 
-	//Centru
-	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetMasina1, 0, 0.0));
-	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
-	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(10 - animatieMasina1, 10 - animatieMasina1, 1.0));
-	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
-	glDrawArrays(GL_POLYGON, 12, 4);
-
-	//Desenare lumina masina 1
-	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetMasina1, 350, 0.0));
-	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
-	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8 - animatieMasina1, 45, 1.0));
-	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
-	glDrawArrays(GL_POLYGON, 20, 4);
-
-	//Bot
-	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetMasina1, 70, 0.0));
-	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
-	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8 - animatieMasina1, 12 - animatieMasina1, 1.0));
-	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
-	glDrawArrays(GL_POLYGON, 12, 4);
-
-	//Spate
-	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetMasina1, -70, 0.0));
-	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
-	glDrawArrays(GL_POLYGON, 12, 4);
-
-
-	//Desenare masina 2 ------------------------
-	int offsetMasina2 = 150;
-	float pozYMasina2 = -350;
-
-	modify = 2;
-	glUniform1i(modifyLocation, modify);
-
-	//Centru
-	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, offsetYMasina2, 0.0));
-	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
-	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(10, 10, 1.0));
-	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
-	glDrawArrays(GL_POLYGON, 16, 4);
-
-	if (!flash)
-	{
-		//Desenare lumina masina 2
-		matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, 350 + offsetYMasina2, 0.0));
-		glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
-		matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8, 45, 1.0));
-		glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
-		glDrawArrays(GL_POLYGON, 20, 4);
-	}
-	else
-	{
-		//Desenare flash lumina masina 2
-		matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, 450 + offsetYMasina2, 0.0));
-		glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
-		matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8, 65, 1.0));
-		glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
-		glDrawArrays(GL_POLYGON, 24, 4);
-	}
 	
-	//Bot
-	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, 70 + offsetYMasina2, 0.0));
-	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
-	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(8, 12, 1.0));
-	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
-	glDrawArrays(GL_POLYGON, 16, 4);
-
-	//Spate
-	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2, -70 + offsetYMasina2, 0.0));
-	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
-	glDrawArrays(GL_POLYGON, 16, 4);
 
 	
 
@@ -598,13 +912,14 @@ void Cleanup(void)
 
 int main(int argc, char* argv[])
 {
-	float scale = 1;
+	float scale = 0.6;
 
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE| GLUT_RGB);
+	glutSetOption(GLUT_MULTISAMPLE, 4);
+	glutInitDisplayMode(GLUT_DOUBLE| GLUT_RGB | GLUT_MULTISAMPLE);
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(scale * width, scale * height);
-	glutCreateWindow("Tema 2");
+	glutCreateWindow("Tema 3");
 	glewInit();
 	Initialize();
 	glutDisplayFunc(RenderFunction);

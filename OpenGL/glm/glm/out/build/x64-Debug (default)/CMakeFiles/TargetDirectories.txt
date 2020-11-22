@@ -1,0 +1,2 @@
+C:/Users/vlad_/source/repos/VladDuncea/OpenGL/OpenGL/glm/glm/out/build/x64-Debug (default)/CMakeFiles/edit_cache.dir
+C:/Users/vlad_/source/repos/VladDuncea/OpenGL/OpenGL/glm/glm/out/build/x64-Debug (default)/CMakeFiles/rebuild_cache.dir
