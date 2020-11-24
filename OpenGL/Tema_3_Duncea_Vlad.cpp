@@ -46,7 +46,7 @@ long long old_t;
 //Coordonate conform cerintei
 const int width = 800, height = 1200;
 const int w = width, h = height;
-const int lineHeight = 100;
+const int lineHeight = 100, lineWidth = 20;
 const float lineSpace = 30;
 const float speed = 200;
 const int nrLines = h / lineHeight;
@@ -58,14 +58,14 @@ float timpMasina1 = 0,duratieMasina1 = 0.1, frecventaMasina1 = 2;
 float animatieMasina1 = 0;
 
 //Masina 2
-float offsetYMasina2Init = -height, offsetXMasina2Init = 150;
+float offsetYMasina2Init = -height-200, offsetXMasina2Init = 150;
 float offsetXMasina2 = offsetXMasina2Init, offsetYMasina2 = offsetYMasina2Init;
 
 
 //Animatie
 int etapaCurenta = 1;
 //ET1
-float stopEtapa1 = -350,initialSpeedEtapa1=400, speedEtapa1 = initialSpeedEtapa1;
+float stopEtapa1 = -350,initialSpeedEtapa1=440, speedEtapa1 = initialSpeedEtapa1;
 float accelYEtapa1 = -90;
 //ET2
 int nrFlash = 0, maxFlash = 2;
@@ -175,22 +175,6 @@ void AdvanceLoop(void)
 	}
 	// End Middle Lines ----------------
 
-	//Cars ---------------------------
-
-	////Car1 -------
-	//timpMasina1 += dt;
-	//if (animatieMasina1 == 0 && timpMasina1 > frecventaMasina1)
-	//{
-	//	timpMasina1 = 0;
-	//	animatieMasina1 = 0.1;
-	//}
-	//else if (animatieMasina1 != 0 && timpMasina1 > duratieMasina1)
-	//{
-	//	timpMasina1 = 0;
-	//	animatieMasina1 = 0;
-	//	frecventaMasina1 = (rand() % 3 + 1);
-	//}
-	////End Car1 ---
 
 	//Car2 ---------------------------
 
@@ -294,7 +278,7 @@ void AdvanceLoop(void)
 			}
 		}
 
-		if (offsetYMasina2 > height*0.75)
+		if (offsetYMasina2 > height)
 		{
 			etapaCurenta = 5;
 			stanga = true;
@@ -307,6 +291,7 @@ void AdvanceLoop(void)
 	}
 	else if (etapaCurenta == 5)
 	{
+		//resetare valori si reincepere animatie
 		offsetYMasina2 = offsetYMasina2Init;
 		offsetXMasina2 = offsetXMasina2Init;
 		etapaCurenta = 1;
@@ -319,87 +304,92 @@ void AdvanceLoop(void)
 void CreateVBO(void)
 {
 	//Calcul linii drum
-	float l = 20.0;
+	float l = lineWidth;
 	float s = (width - l)/2.0;
 	float l2 = l;
 	float h2 = lineHeight;
 
 	// varfurile 
 	GLfloat Vertices[] = {
-		//Varfuri pt drum
+		//Varfuri pt drum 0
 		0.0f,	0.0f,	0.0f,	1.0f,
 		w,		0.0f,	0.0f,	1.0f,
 		w,		h,		0.0f,	1.0f,
 		0.0f,	h,		0.0f,	1.0f,
 
-		//Varfuri linie continua
+		//Varfuri linie continua 4
 		s,		0.0f,	0.0f,	1.0f,
 		s+l,	0.0f,	0.0f,	1.0f,
 		s+l,	h,		0.0f,	1.0f,
 		s,		h,		0.0f,	1.0f,
 
-		//Varfuri linie punctata
+		//Varfuri linie punctata 8
 		(w-l2)/2,	(h - h2)/2.0,	0.0f,	1.0f,
 		(w+l2)/2,	(h - h2)/2.0,	0.0f,	1.0f,
 		(w+l2)/2,	(h + h2)/2.0,	0.0f,	1.0f,
 		(w-l2)/2,	(h + h2)/2.0,	0.0f,	1.0f,
 
-		//Patrat pentru masina 1
+		//Patrat pentru masina 1 12
 		(w-10)/2,	(h-10)/2,	0.0f,	1.0f,
 		(w+10)/2,	(h-10)/2,	0.0f,	1.0f,
 		(w+10)/2,	(h+10)/2,	0.0f,	1.0f,
 		(w-10)/2,	(h+10)/2,	0.0f,	1.0f,
 
-		//Patrat pentru masina 2
+		//Patrat pentru masina 2 16
 		(w - 10) / 2,	(h - 10) / 2,	0.0f,	1.0f,
 		(w + 10) / 2,	(h - 10) / 2,	0.0f,	1.0f,
 		(w + 10) / 2,	(h + 10) / 2,	0.0f,	1.0f,
 		(w - 10) / 2,	(h + 10) / 2,	0.0f,	1.0f,
 
-		//Trunchi lumina
+		//Trunchi lumina 20
 		(w-10)/2,	(h)/2,	1.0f,	1.0f,
 		(w+10)/2,	(h)/2,	1.0f,	1.0f,
 		(w+150)/2,	(h+20)/2,	1.0f,	1.0f,
 		(w-150)/2,	(h+20)/2,	1.0f,	1.0f,
 
-		//Trunchi flash lumina
+		//Trunchi flash lumina 24
 		(w - 10) / 2,	(h) / 2,	1.0f,	1.0f,
 		(w + 10) / 2,	(h) / 2,	1.0f,	1.0f,
 		(w + 300) / 2,	(h + 20) / 2,	1.0f,	1.0f,
 		(w - 300) / 2,	(h + 20) / 2,	1.0f,	1.0f,
 
-		//Semnal
+		//Semnal 28
 		(w - 10) / 2,	(h - 20) / 2,	0.0f,	1.0f,
 		(w + 10) / 2,	(h - 20) / 2,	0.0f,	1.0f,
 		(w + 10) / 2,	(h + 20) / 2,	0.0f,	1.0f,
 		(w - 10) / 2,	(h + 20) / 2,	0.0f,	1.0f,
 
-		//Stop
+		//Stop 32
 		(w - 20) / 2,	(h - 10) / 2,	0.0f,	1.0f,
 		(w + 20) / 2,	(h - 10) / 2,	0.0f,	1.0f,
 		(w + 20) / 2,	(h + 10) / 2,	0.0f,	1.0f,
 		(w - 20) / 2,	(h + 10) / 2,	0.0f,	1.0f,
 
-		//Trunchi lumina stop
+		//Trunchi lumina stop 36
 		(w - 2000) / 2,	(h - 10) / 2,	0.0f,	1.0f,
 		(w + 2000) / 2,	(h - 10) / 2,	0.0f,	1.0f,
 		(w + 20) / 2,	(h) / 2,	0.0f,	1.0f,
 		(w - 20) / 2,	(h) / 2,	0.0f,	1.0f,
 
-		//Trunchi lumina frana
+		//Trunchi lumina frana 40
 		(w - 10000) / 2,	(h - 10) / 2,	0.0f,	1.0f,
 		(w + 10000) / 2,	(h - 10) / 2,	0.0f,	1.0f,
 		(w + 20) / 2,	(h) / 2,	0.0f,	1.0f,
 		(w - 20) / 2,	(h) / 2,	0.0f,	1.0f,
 
-		//Trunchi lumina semnal
+		//Trunchi lumina semnal 44
 		(w - 20) / 2,	(h - 2000) / 2,	0.0f,	1.0f,
 		(w) / 2,		(h - 10) / 2,	0.0f,	1.0f,
 		(w) / 2,		(h + 10) / 2,	0.0f,	1.0f,
 		(w - 20) / 2,	(h + 2000) / 2,	0.0f,	1.0f,
+
+		//Far 48
+		(w - 20) / 2,	(h - 10) / 2,	0.0f,	1.0f,
+		(w + 20) / 2,	(h - 10) / 2,	0.0f,	1.0f,
+		(w + 20) / 2,	(h + 10) / 2,	0.0f,	1.0f,
+		(w - 20) / 2,	(h + 10) / 2,	0.0f,	1.0f,
 	};
 
-	// culorile varfurilor din colturi
 	GLfloat Colors[] = {
 		//Culori drum
 		0.2f, 0.2f, 0.2f, 1.0f,
@@ -472,6 +462,12 @@ void CreateVBO(void)
 		1.0f, 0.7f, 0.0f, 0.05f,
 		1.0f, 0.7f, 0.0f, 0.05f,
 		1.0f, 0.7f, 0.0f, 0.0f,
+
+		//Culoare far
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
 	};
 
 
@@ -597,6 +593,21 @@ void drawCar1(void)
 	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
 	glDrawArrays(GL_POLYGON, 12, 4);
 
+
+	//Far
+	//far dreapta
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1 + 25, 125, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(1, 1, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 48, 4);
+
+	//far stanga
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1 - 25, 125, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	glDrawArrays(GL_POLYGON, 48, 4);
+
+	
 	//Stop
 	//stop dreapta
 	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina1 +30, -125, 0.0));
@@ -710,6 +721,19 @@ void drawCar2(void)
 			glDrawArrays(GL_POLYGON, 28, 4);
 		}
 	}
+
+	//Far
+	//far dreapta
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 + 25, offsetYMasina2 + 125, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	matrScale = glm::scale(glm::mat4(1.0f), glm::vec3(1, 1, 1.0));
+	glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
+	glDrawArrays(GL_POLYGON, 48, 4);
+
+	//far stanga
+	matrTransl = glm::translate(glm::mat4(1.0f), glm::vec3(offsetXMasina2 - 25, offsetYMasina2 + 125, 0.0));
+	glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
+	glDrawArrays(GL_POLYGON, 48, 4);
 
 	//Stop masina
 	//stop dreapta
@@ -874,31 +898,6 @@ void RenderFunction(void)
 	drawCar1Lights();
 	drawCar2Lights();
 
-	
-
-	
-
-	////Calcul aici(in program)
-	//matrTransl = matrTransl2 * matrRot * matrTransl1;
-	//matrTranslLocation = glGetUniformLocation(ProgramId, "matrTransl");
-	//glUniformMatrix4fv(matrTranslLocation, 1, GL_FALSE, &matrTransl[0][0]);
-
-	//glDrawArrays(GL_POLYGON, 8, 5);
-	//glDrawArrays(GL_TRIANGLES, 13, 9);
-
-	////Translatare si Scalare D in shader
-	//modify = 2;
-	//glUniform1i(modifyLocation, modify);
-
-	//matrScaleLocation = glGetUniformLocation(ProgramId, "matrScale");
-	//matrTranslD1Location = glGetUniformLocation(ProgramId, "matrTranslD1");
-	//matrTranslD2Location = glGetUniformLocation(ProgramId, "matrTranslD2");
-	//glUniformMatrix4fv(matrScaleLocation, 1, GL_FALSE, &matrScale[0][0]);
-	//glUniformMatrix4fv(matrTranslD1Location, 1, GL_FALSE, &matrTranslD1[0][0]);
-	//glUniformMatrix4fv(matrTranslD2Location, 1, GL_FALSE, &matrTranslD2[0][0]);
-
-	//glDrawArrays(GL_POLYGON, 4, 4);
-
 	//Folosim doua buffere
 	glutSwapBuffers();
 	glFlush();
@@ -912,7 +911,7 @@ void Cleanup(void)
 
 int main(int argc, char* argv[])
 {
-	float scale = 0.6;
+	float scale = 1;
 
 	glutInit(&argc, argv);
 	glutSetOption(GLUT_MULTISAMPLE, 4);
