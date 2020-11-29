@@ -157,6 +157,10 @@
     <None Include="04_01_Shader.vert" />
     <None Include="04_03_Shader.frag" />
     <None Include="04_03_Shader.vert" />
+    <None Include="08_01_Shader.frag" />
+    <None Include="08_01_Shader.vert" />
+    <None Include="08_02_Shader.frag" />
+    <None Include="08_02_Shader.vert" />
     <None Include="Tema_2_Duncea_Vlad_1.vert" />
     <None Include="Tema_3_Duncea_Vlad.vert" />
   </ItemGroup>
@@ -164,6 +168,8 @@
     <ClCompile Include="04_03_transformari_glm_vers.cpp" />
     <ClCompile Include="04_04_transformari_keyboard.cpp" />
     <ClCompile Include="06_01_animatie.cpp" />
+    <ClCompile Include="07_01_proiectii.cpp" />
+    <ClCompile Include="08_01_functii_desenare.cpp" />
     <ClCompile Include="loadShaders.cpp" />
     <ClCompile Include="sapt3.cpp" />
     <ClCompile Include="sapt4.cpp" />
