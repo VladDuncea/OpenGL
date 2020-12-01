@@ -51,15 +51,12 @@
     <None Include="08_02_Shader.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Licenta_prototip.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="loadShaders.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sapt3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sapt4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="04_04_transformari_keyboard.cpp">
@@ -68,22 +65,19 @@
     <ClCompile Include="04_03_transformari_glm_vers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tema_2_Duncea_Vlad.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="06_01_animatie.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tema_1_Duncea_VladAlexandru.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tema_3_Duncea_Vlad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="08_01_functii_desenare.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="07_01_proiectii.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Licenta-prototip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="08_02_instanced_rendering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
