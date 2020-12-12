@@ -8,6 +8,7 @@ in vec4 in_Color;
 
 out vec4 gl_Position; 
 out vec4 ex_Color;
+out float gl_PointSize;
 uniform mat4 defaultTranslate;
 uniform mat4 defaultResize;
 uniform mat4 matrTransl;
@@ -20,6 +21,7 @@ uniform mat4 matrRotFinal;
 uniform mat4 matrRotTransl1;
 uniform mat4 matrRotTransl2;
 uniform int modify;
+uniform int pointSize;
 uniform int rotateFinal;
 
 
@@ -48,7 +50,7 @@ void main(void)
         gl_Position = defaultTranslate*in_Position;
     }
 
-    gl_Position = view*defaultResize*gl_Position;
+    gl_Position = projection*view*defaultResize*gl_Position;
 
     ex_Color = in_Color;
 } 

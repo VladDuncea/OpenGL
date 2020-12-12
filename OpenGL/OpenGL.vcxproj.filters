@@ -54,6 +54,9 @@
     <None Include="Licenta_prototip.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="date.in">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="loadShaders.cpp">
@@ -78,6 +81,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="08_02_instanced_rendering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tema_3_Duncea_Vlad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="10_02_umbra.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
