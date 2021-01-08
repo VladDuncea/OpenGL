@@ -100,7 +100,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freeglut.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;glew32.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -117,7 +117,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freeglut.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;glew32.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,7 +130,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freeglut.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;glew32.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,7 +147,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freeglut.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;glew32.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -161,6 +161,16 @@
     <None Include="08_01_Shader.vert" />
     <None Include="08_02_Shader.frag" />
     <None Include="08_02_Shader.vert" />
+    <None Include="10_01f_Shader.frag" />
+    <None Include="10_01f_Shader.vert" />
+    <None Include="10_01v_Shader.frag" />
+    <None Include="10_01v_Shader.vert" />
+    <None Include="Tema_4_Duncea_Vlad.frag" />
+    <None Include="Tema_4_Duncea_Vlad.vert" />
+    <None Include="11_03_Shader.frag" />
+    <None Include="11_03_Shader.vert" />
+    <None Include="11_04_Shader.frag" />
+    <None Include="11_04_Shader.vert" />
     <None Include="date.in" />
     <None Include="Licenta_prototip.vert" />
     <None Include="Tema_2_Duncea_Vlad_1.vert" />
@@ -173,13 +183,26 @@
     <ClCompile Include="07_01_proiectii.cpp" />
     <ClCompile Include="08_01_functii_desenare.cpp" />
     <ClCompile Include="08_02_instanced_rendering.cpp" />
+    <ClCompile Include="10_01_model_iluminare.cpp" />
     <ClCompile Include="10_02_umbra.cpp" />
+    <ClCompile Include="11_03_texturare_2D.cpp" />
+    <ClCompile Include="11_04_texturare.cpp" />
+    <ClCompile Include="12_01_obiecte.cpp" />
+    <ClCompile Include="12_02_model_loading.cpp" />
+    <ClCompile Include="imageloader.cpp" />
     <ClCompile Include="Licenta-prototip.cpp" />
     <ClCompile Include="loadShaders.cpp" />
+    <ClCompile Include="objloader.cpp" />
     <ClCompile Include="Tema_3_Duncea_Vlad.cpp" />
+    <ClCompile Include="Tema_4_Duncea_Vlad.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="imageloader.h" />
     <ClInclude Include="loadShaders.h" />
+    <ClInclude Include="objloader.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="text_smiley_face.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

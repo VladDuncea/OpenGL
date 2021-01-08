@@ -4,16 +4,16 @@
  #version 400
 
 in vec4 ex_Color;
-uniform int codCol;
+in vec4 gl_FragCoord;
+in vec2 gl_PointCoord;
+ 
+
 out vec4 out_Color;
+
  
 
 void main(void)
   {
-	if ( codCol==0 )
-		out_Color = ex_Color;
-	if ( codCol==1 )
-		out_Color=vec4 (0.0, 0.0, 0.0, 0.0);
-
+  		out_Color =  ex_Color;
   }
  

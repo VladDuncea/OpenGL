@@ -57,6 +57,36 @@
     <None Include="date.in">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="10_01v_Shader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="10_01v_Shader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="10_01f_Shader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="10_01f_Shader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="11_03_Shader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="11_03_Shader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="11_04_Shader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="11_04_Shader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Tema_4_Duncea_Vlad.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Tema_4_Duncea_Vlad.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="loadShaders.cpp">
@@ -89,10 +119,45 @@
     <ClCompile Include="10_02_umbra.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="10_01_model_iluminare.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="11_03_texturare_2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="11_04_texturare.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imageloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tema_4_Duncea_Vlad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="12_01_obiecte.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="12_02_model_loading.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="loadShaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="imageloader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objloader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="text_smiley_face.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
