@@ -165,6 +165,10 @@
     <None Include="10_01f_Shader.vert" />
     <None Include="10_01v_Shader.frag" />
     <None Include="10_01v_Shader.vert" />
+    <None Include="12_01_Shader.frag" />
+    <None Include="12_01_Shader.vert" />
+    <None Include="12_02_Shader.frag" />
+    <None Include="12_02_Shader.vert" />
     <None Include="Tema_4_Duncea_Vlad.frag" />
     <None Include="Tema_4_Duncea_Vlad.vert" />
     <None Include="11_03_Shader.frag" />
@@ -175,6 +179,8 @@
     <None Include="Licenta_prototip.vert" />
     <None Include="Tema_2_Duncea_Vlad_1.vert" />
     <None Include="Tema_3_Duncea_Vlad.vert" />
+    <None Include="Tema_5_Duncea_Vlad.frag" />
+    <None Include="Tema_5_Duncea_Vlad.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="04_03_transformari_glm_vers.cpp" />
@@ -195,6 +201,7 @@
     <ClCompile Include="objloader.cpp" />
     <ClCompile Include="Tema_3_Duncea_Vlad.cpp" />
     <ClCompile Include="Tema_4_Duncea_Vlad.cpp" />
+    <ClCompile Include="Tema_5_Duncea_Vlad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imageloader.h" />
